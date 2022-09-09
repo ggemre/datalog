@@ -31,5 +31,7 @@
 *.out
 *.app
 
-# Test files
+# Development files
 *.txt
+.idea/*
+lab1.dSYM/*
