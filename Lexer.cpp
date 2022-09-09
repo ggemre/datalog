@@ -4,6 +4,7 @@
 
 Lexer::Lexer() {
     CreateAutomata();
+
 }
 
 Lexer::~Lexer() {
