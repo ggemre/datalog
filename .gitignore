@@ -35,3 +35,4 @@
 *.txt
 .idea/*
 lab1.dSYM/*
+cmake-build-debug/*
