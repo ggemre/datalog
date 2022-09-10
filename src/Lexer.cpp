@@ -1,5 +1,7 @@
 #include <sstream>
+#include <string>
 #include "Lexer.h"
+#include "CommaAutomaton.h"
 #include "ColonAutomaton.h"
 #include "ColonDashAutomaton.h"
 
@@ -9,9 +11,11 @@ Lexer::Lexer() {
 
 Lexer::~Lexer() {
     // TODO: need to clean up the memory in `automata` and `tokens`
+    
 }
 
 void Lexer::CreateAutomata() {
+    automata.push_back(new CommaAutomaton());
     automata.push_back(new ColonAutomaton());
     automata.push_back(new ColonDashAutomaton());
     // TODO: Add the other needed automata here
@@ -82,10 +86,22 @@ void Lexer::Run(std::string& input) {
         else {
             // FIXME: here
             maxRead = 1;
-            Token *newToken = maxAutomaton->CreateToken(input, lineNumber);
-            tokens.push_back(newToken);
+            //Token *newToken = maxAutomaton->CreateToken(input, lineNumber);
+            //tokens.push_back(newToken);
+        }
+
+        for (int i = 0; i < maxRead; i++) {
+            input.erase(0, 1);
+        }
+        
+        if (input.at(0) == '\n') {
+            lineNumber++;
+            input.erase(0, 1);
         }
     }
+    
+    Token *newToken = new Token(TokenType::EOF_TOKEN, "", lineNumber);
+    tokens.push_back(newToken);
 }
 
 std::string Lexer::GetTokens() {
@@ -93,7 +109,7 @@ std::string Lexer::GetTokens() {
     
     unsigned int tokenNum = tokens.size();
     for (unsigned int i = 0; i < tokenNum; i++) {
-        os << tokens[i]->ToString();
+        os << tokens[i]->ToString() << "\n";
     }
 
     return os.str();

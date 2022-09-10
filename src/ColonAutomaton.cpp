@@ -8,3 +8,8 @@ void ColonAutomaton::S0(const std::string& input) {
         Serr();
     }
 }
+
+Token* ColonAutomaton::CreateToken(std::string input, int lineNumber) { 
+    std::string description = input.substr(0, 1);
+    return new Token(type, description, lineNumber); 
+}

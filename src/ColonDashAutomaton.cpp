@@ -19,3 +19,8 @@ void ColonDashAutomaton::S1(const std::string& input) {
         Serr();
     }
 }
+
+Token* ColonDashAutomaton::CreateToken(std::string input, int lineNumber) { 
+    std::string description = input.substr(0, 2);
+    return new Token(type, description, lineNumber); 
+}
