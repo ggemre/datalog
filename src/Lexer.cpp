@@ -2,23 +2,47 @@
 #include <string>
 #include "Lexer.h"
 #include "CommaAutomaton.h"
+#include "PeriodAutomaton.h"
+#include "QmarkAutomaton.h"
+#include "LeftParenAutomaton.h"
+#include "RightParenAutomaton.h"
 #include "ColonAutomaton.h"
 #include "ColonDashAutomaton.h"
+#include "MultiplyAutomaton.h"
+#include "AddAutomaton.h"
+#include "SchemesAutomaton.h"
+#include "FactsAutomaton.h"
+#include "RulesAutomaton.h"
+#include "QueriesAutomaton.h"
 
 Lexer::Lexer() {
     CreateAutomata();
 }
 
 Lexer::~Lexer() {
-    // TODO: need to clean up the memory in `automata` and `tokens`
-    
+    for (Automaton *automaton : automata) {
+        delete automaton;
+    }
+
+    for (Token *token : tokens) {
+        delete token;
+    }
 }
 
 void Lexer::CreateAutomata() {
     automata.push_back(new CommaAutomaton());
+    automata.push_back(new PeriodAutomaton());
+    automata.push_back(new QmarkAutomaton());
+    automata.push_back(new LeftParenAutomaton());
+    automata.push_back(new RightParenAutomaton());
     automata.push_back(new ColonAutomaton());
     automata.push_back(new ColonDashAutomaton());
-    // TODO: Add the other needed automata here
+    automata.push_back(new MultiplyAutomaton());
+    automata.push_back(new AddAutomaton());
+    automata.push_back(new SchemesAutomaton());
+    automata.push_back(new FactsAutomaton());
+    automata.push_back(new RulesAutomaton());
+    automata.push_back(new QueriesAutomaton());
 }
 
 void Lexer::Run(std::string& input) {
@@ -66,11 +90,8 @@ void Lexer::Run(std::string& input) {
     while (input.length() > 0) {
         int maxRead = 0;
         Automaton *maxAutomaton = automata[0];
-        unsigned int automataLen = automata.size();
 
-        for (unsigned int i = 0; i < automataLen; i++) {
-            Automaton *currentAutomaton = automata[i];
-
+        for (Automaton *currentAutomaton : automata) {
             int inputRead = currentAutomaton->Start(input);
             if (inputRead > maxRead) {
                 maxRead = inputRead;

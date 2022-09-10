@@ -12,4 +12,4 @@ public:
     Token* CreateToken(std::string input, int lineNumber);
 };
 
-#endif // COLONAUTOMATON_H
+#endif // COMMAAUTOMATON_H
