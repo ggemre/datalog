@@ -30,9 +30,3 @@
 *.exe
 *.out
 *.app
-
-# Development files
-*.txt
-.idea/*
-lab1.dSYM/*
-cmake-build-debug/*
