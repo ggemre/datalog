@@ -1,3 +1,4 @@
+#include <sstream>
 #include "Lexer.h"
 #include "ColonAutomaton.h"
 #include "ColonDashAutomaton.h"
@@ -87,11 +88,13 @@ void Lexer::Run(std::string& input) {
     }
 }
 
-std::string Lexer::ToString() {
-    return "Hello, world!";
-}
+std::string Lexer::GetTokens() {
+    std::stringstream os;
+    
+    unsigned int tokenNum = tokens.size();
+    for (unsigned int i = 0; i < tokenNum; i++) {
+        os << tokens[i]->ToString();
+    }
 
-std::ostream& operator<<(std::ostream &os, Lexer &lexer) {
-    os << lexer.ToString();
-    return os;
+    return os.str();
 }

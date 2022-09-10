@@ -19,12 +19,10 @@ public:
     ~Lexer();
 
     void Run(std::string& input);
-    std::string ToString();
-    std::ostream operator<<(std::ostream &os);
+    std::string GetTokens();
     
     // TODO: add other public methods here
 
 };
 
 #endif // LEXER_H
-
