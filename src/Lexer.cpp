@@ -14,6 +14,11 @@
 #include "FactsAutomaton.h"
 #include "RulesAutomaton.h"
 #include "QueriesAutomaton.h"
+#include "IdAutomaton.h"
+#include "StringAutomaton.h"
+#include "CommentAutomaton.h"
+
+#include <iostream>
 
 Lexer::Lexer() {
     CreateAutomata();
@@ -43,6 +48,9 @@ void Lexer::CreateAutomata() {
     automata.push_back(new FactsAutomaton());
     automata.push_back(new RulesAutomaton());
     automata.push_back(new QueriesAutomaton());
+    automata.push_back(new StringAutomaton());
+    automata.push_back(new CommentAutomaton());
+    automata.push_back(new IdAutomaton());
 }
 
 void Lexer::Run(std::string& input) {
@@ -88,6 +96,12 @@ void Lexer::Run(std::string& input) {
     int lineNumber = 1;
 
     while (input.length() > 0) {
+
+        if (input.at(0) == '\n') {
+            lineNumber++;
+            input.erase(0, 1);
+        }
+
         int maxRead = 0;
         Automaton *maxAutomaton = automata[0];
 
@@ -132,6 +146,7 @@ std::string Lexer::GetTokens() {
     for (unsigned int i = 0; i < tokenNum; i++) {
         os << tokens[i]->ToString() << "\n";
     }
+    os << "Total Tokens = " << tokenNum;
 
     return os.str();
 }

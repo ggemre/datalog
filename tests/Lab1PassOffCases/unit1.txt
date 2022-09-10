@@ -1,0 +1,7 @@
+# COPYRIGHT © BRIGHAM YOUNG UNIVERSITY CS 236
+# FOR USE ONLY DURING SPRING 2021 SEMESTER
+Schemes:
+   snap(S,N,A,P) 
+
+Facts:
+   snap('1234','Charley','Apple St','555-1234'). 

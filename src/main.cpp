@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
 
     // TODO
     lexer->Run(fileAsString);
-    std::cout << lexer->GetTokens() << std::endl;
+    std::cout << lexer->GetTokens();
 
     delete lexer;
 
