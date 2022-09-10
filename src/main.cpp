@@ -6,7 +6,7 @@ int main(int argc, char** argv) {
     std::string fileName;
 
     if (argc < 2) {
-        fileName = "../tests/Lab1PassOffCases/1-70/input7.txt";
+        fileName = "../tests/Lab1PassOffCases/1-90/input3.txt";
     }
     else {
         fileName = argv[1];

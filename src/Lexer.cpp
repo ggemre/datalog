@@ -1,5 +1,6 @@
 #include <sstream>
 #include <string>
+#include <cctype>
 #include "Lexer.h"
 #include "CommaAutomaton.h"
 #include "PeriodAutomaton.h"
@@ -119,17 +120,20 @@ void Lexer::Run(std::string& input) {
             tokens.push_back(newToken);
         }
         else {
-            // FIXME: here
             maxRead = 1;
-            //Token *newToken = maxAutomaton->CreateToken(input, lineNumber);
-            //tokens.push_back(newToken);
+            if (input.length() > 0) {
+                if (!isspace(input.at(0))) {
+                    Token *newToken = new Token(TokenType::UNDEFINED, input.substr(0, 1), lineNumber);
+                    tokens.push_back(newToken);
+                }
+            }
         }
 
         for (int i = 0; i < maxRead; i++) {
             input.erase(0, 1);
         }
         
-        if (input.at(0) == '\n') {
+        if (input.length() > 1 && input.at(0) == '\n') {
             lineNumber++;
             input.erase(0, 1);
         }

@@ -1,16 +1,12 @@
+#include <cctype>
 #include "StringAutomaton.h"
 
+#include <iostream>
+
 void StringAutomaton::S0(const std::string& input) {
-    if (input[index] == '"') {
-        inputRead++;
-        index++;
-        doubleQuotes = true;
-        S1(input);
-    }
     if (input[index] == '\'') {
         inputRead++;
         index++;
-        doubleQuotes = false;
         S1(input);
     }
     else {
@@ -19,13 +15,16 @@ void StringAutomaton::S0(const std::string& input) {
 }
 
 void StringAutomaton::S1(const std::string& input) {
-    if (doubleQuotes && input[index] == '"') {
+    if (input[index] == '\'') {
         inputRead++;
         index++;
+        S2(input);
     }
-    else if (!doubleQuotes && input[index] == '\'') {
+    else if (input[index] == '\n') {
         inputRead++;
         index++;
+        newLines++;
+        S1(input);
     }
     else if (input[index] != EOF) {
         inputRead++;
@@ -37,7 +36,39 @@ void StringAutomaton::S1(const std::string& input) {
     }
 }
 
+void StringAutomaton::S2(const std::string& input) {
+    if (input[index] == '\'') {
+        inputRead++;
+        index++;
+        S1(input);
+    }
+    else if (input[index] == EOF) {
+        Serr();
+    }
+}
+
+bool StringAutomaton::IsClosed(std::string description) {
+    unsigned int aposCount = 0;
+    for (char c : description) {
+        if (c == '\'') {
+            aposCount++;
+        }
+    }
+    
+    if (aposCount % 2 == 0) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 Token* StringAutomaton::CreateToken(std::string input, int lineNumber) { 
     std::string description = input.substr(0, index);
-    return new Token(type, description, lineNumber); 
+    if (IsClosed(description)) {
+        return new Token(type, description, lineNumber); 
+    }
+    else {
+        return new Token(TokenType::UNDEFINED, description, lineNumber);
+    }
 }

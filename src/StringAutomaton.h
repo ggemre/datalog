@@ -6,9 +6,9 @@
 class StringAutomaton : public Automaton
 {
 private:
-    bool doubleQuotes;
-
     void S1(const std::string& input);
+    void S2(const std::string& input);
+    bool IsClosed(std::string description);
 
 public:
     StringAutomaton() : Automaton(TokenType::STRING) {}  // Call the base constructor
