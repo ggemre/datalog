@@ -19,6 +19,8 @@ public:
     ~Lexer();
 
     void Run(std::string& input);
+    std::string ToString();
+    std::ostream operator<<(std::ostream &os);
     
     // TODO: add other public methods here
 

@@ -4,7 +4,6 @@
 
 Lexer::Lexer() {
     CreateAutomata();
-
 }
 
 Lexer::~Lexer() {
@@ -56,4 +55,43 @@ void Lexer::Run(std::string& input) {
     }
     add end of file token to all tokens
     */
+
+    int lineNumber = 1;
+
+    while (input.length() > 0) {
+        int maxRead = 0;
+        Automaton *maxAutomaton = automata[0];
+        unsigned int automataLen = automata.size();
+
+        for (unsigned int i = 0; i < automataLen; i++) {
+            Automaton *currentAutomaton = automata[i];
+
+            int inputRead = currentAutomaton->Start(input);
+            if (inputRead > maxRead) {
+                maxRead = inputRead;
+                maxAutomaton = currentAutomaton;
+            }
+        }
+
+        if (maxRead > 0) {
+            Token *newToken = maxAutomaton->CreateToken(input, lineNumber);
+            lineNumber += maxAutomaton->NewLinesRead();
+            tokens.push_back(newToken);
+        }
+        else {
+            // FIXME: here
+            maxRead = 1;
+            Token *newToken = maxAutomaton->CreateToken(input, lineNumber);
+            tokens.push_back(newToken);
+        }
+    }
+}
+
+std::string Lexer::ToString() {
+    return "Hello, world!";
+}
+
+std::ostream& operator<<(std::ostream &os, Lexer &lexer) {
+    os << lexer.ToString();
+    return os;
 }
