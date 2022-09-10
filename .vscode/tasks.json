@@ -5,11 +5,14 @@
             "label": "C/C++: g++ build active file",
             "command": "/usr/bin/g++",
             "args": [
+                "-fdiagnostics-color=always",
+                "-g",
                 "-Wall",
-                "Werror",
-                "*.cpp",
+                "-Werror",
+                "-std=c++17",
+                "${fileDirname}/*.cpp",
                 "-o",
-                "../debug/lab1"
+                "${fileDirname}/../debug/lab1"
             ],
             "options": {
                 "cwd": "${fileDirname}"
