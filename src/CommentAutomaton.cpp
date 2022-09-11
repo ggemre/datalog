@@ -1,7 +1,5 @@
 #include "CommentAutomaton.h"
 
-#include <iostream>
-
 void CommentAutomaton::S0(const std::string& input) {
     if (input[index] == '#') {
         inputRead++;
