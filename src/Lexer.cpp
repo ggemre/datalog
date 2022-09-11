@@ -122,7 +122,7 @@ void Lexer::Run(std::string& input) {
         else {
             maxRead = 1;
             if (input.length() > 0) {
-                if (!isspace(input.at(0))) {
+                if (!isspace(input.at(0)) && input.at(0) != EOF) {
                     Token *newToken = new Token(TokenType::UNDEFINED, input.substr(0, 1), lineNumber);
                     tokens.push_back(newToken);
                 }

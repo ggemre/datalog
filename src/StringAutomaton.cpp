@@ -32,7 +32,7 @@ void StringAutomaton::S1(const std::string& input) {
         S1(input);
     }
     else {
-        Serr();
+        isDefined = false;
     }
 }
 
@@ -43,29 +43,14 @@ void StringAutomaton::S2(const std::string& input) {
         S1(input);
     }
     else if (input[index] == EOF) {
-        Serr();
-    }
-}
-
-bool StringAutomaton::IsClosed(std::string description) {
-    unsigned int aposCount = 0;
-    for (char c : description) {
-        if (c == '\'') {
-            aposCount++;
-        }
-    }
-    
-    if (aposCount % 2 == 0) {
-        return true;
-    }
-    else {
-        return false;
+        isDefined = false;
     }
 }
 
 Token* StringAutomaton::CreateToken(std::string input, int lineNumber) { 
     std::string description = input.substr(0, index);
-    if (IsClosed(description)) {
+    
+    if (isDefined) {
         return new Token(type, description, lineNumber); 
     }
     else {

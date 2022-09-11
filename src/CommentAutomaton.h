@@ -6,7 +6,7 @@
 class CommentAutomaton : public Automaton
 {
 private:
-    bool doubleQuotes;
+    bool isDefined = true;
 
     void S1(const std::string& input);
     void Ss1(const std::string& input);
