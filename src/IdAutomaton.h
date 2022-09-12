@@ -1,5 +1,5 @@
 #ifndef IDAUTOMATON_H
-#define ID_AUTOMATON_H
+#define IDAUTOMATON_H
 
 #include "Automaton.h"
 
