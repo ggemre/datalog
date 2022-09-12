@@ -98,7 +98,7 @@ void Lexer::Run(std::string& input) {
 
     while (input.length() > 0) {
 
-        if (input.at(0) == '\n') {
+        while (input.at(0) == '\n') {
             lineNumber++;
             input.erase(0, 1);
         }
@@ -130,11 +130,6 @@ void Lexer::Run(std::string& input) {
         }
 
         for (int i = 0; i < maxRead; i++) {
-            input.erase(0, 1);
-        }
-        
-        if (input.length() > 1 && input.at(0) == '\n') {
-            lineNumber++;
             input.erase(0, 1);
         }
     }
