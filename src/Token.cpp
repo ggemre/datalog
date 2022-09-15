@@ -7,12 +7,24 @@ Token::Token(TokenType type, std::string description, int line) {
     this->line = line;
 }
 
+/**
+ * used for creating self describing string, in the lexer run method
+ * 
+ * @return information on token as a string, formatted
+ * @see lexer::run()
+ */
 std::string Token::ToString() {
     std::stringstream os;
     os << "(" << TypeName(type) << ",\"" << description << "\"," << line << ")";
     return os.str();
 }
 
+/**
+ * used for converting TokenType to a string
+ * 
+ * @param type the type of token
+ * @return string equivalent of type
+ */
 std::string Token::TypeName(TokenType type) {
     switch (type) {
         case TokenType::COMMA:
