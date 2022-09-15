@@ -35,6 +35,9 @@ Lexer::~Lexer() {
     }
 }
 
+/**
+ * pushes each automaton onto automata vector
+ */
 void Lexer::CreateAutomata() {
     automata.push_back(new CommaAutomaton());
     automata.push_back(new PeriodAutomaton());
@@ -54,50 +57,20 @@ void Lexer::CreateAutomata() {
     automata.push_back(new IdAutomaton());
 }
 
+/**
+ * feeds through input and builds up token vector
+ * 
+ * this is the 1st block of the datalog pipeline
+ * 
+ * @param input file being read in as a string
+ */
 void Lexer::Run(std::string& input) {
-    // TODO: convert this pseudo-code with the algorithm into actual C++ code
-    /*
-    set lineNumber to 1
-    // While there are more characters to tokenize
-    loop while input.size() > 0 {
-        set maxRead to 0
-        set maxAutomaton to the first automaton in automata
-
-        // TODO: you need to handle whitespace inbetween tokens
-
-        // Here is the "Parallel" part of the algorithm
-        //   Each automaton runs with the same input
-        foreach automaton in automata {
-            inputRead = automaton.Start(input)
-            if (inputRead > maxRead) {
-                set maxRead to inputRead
-                set maxAutomaton to automaton
-            }
-        }
-        // Here is the "Max" part of the algorithm
-        if maxRead > 0 {
-            set newToken to maxAutomaton.CreateToken(...)
-                increment lineNumber by maxAutomaton.NewLinesRead()
-                add newToken to collection of all tokens
-        }
-        // No automaton accepted input
-        // Create single character undefined token
-        else {
-            set maxRead to 1
-                set newToken to a  new undefined Token
-                (with first character of input)
-                add newToken to collection of all tokens
-        }
-        // Update `input` by removing characters read to create Token
-        remove maxRead characters from input
-    }
-    add end of file token to all tokens
-    */
-
     int lineNumber = 1;
 
+    // loops through each character of input
     while (input.length() > 0) {
 
+        // count then remove new lines
         while (input.at(0) == '\n') {
             lineNumber++;
             input.erase(0, 1);
@@ -106,6 +79,7 @@ void Lexer::Run(std::string& input) {
         int maxRead = 0;
         Automaton *maxAutomaton = automata[0];
 
+        // for each automaton, get inputRead
         for (Automaton *currentAutomaton : automata) {
             int inputRead = currentAutomaton->Start(input);
             if (inputRead > maxRead) {
@@ -114,11 +88,13 @@ void Lexer::Run(std::string& input) {
             }
         }
 
+        // if a token was identified, create and add to tokens
         if (maxRead > 0) {
             Token *newToken = maxAutomaton->CreateToken(input, lineNumber);
             lineNumber += maxAutomaton->NewLinesRead();
             tokens.push_back(newToken);
         }
+        // otherwise add token of type UNDEFINED
         else {
             maxRead = 1;
             if (input.length() > 0) {
@@ -129,15 +105,22 @@ void Lexer::Run(std::string& input) {
             }
         }
 
+        // erase all characters read
         for (int i = 0; i < maxRead; i++) {
             input.erase(0, 1);
         }
     }
     
+    // append EOF token
     Token *newToken = new Token(TokenType::EOF_TOKEN, "", lineNumber);
     tokens.push_back(newToken);
 }
 
+/**
+ * returns token vector as a string
+ * 
+ * @return string of tokens, seperated by new lines
+ */
 std::string Lexer::GetTokens() {
     std::stringstream os;
     
