@@ -19,8 +19,6 @@
 #include "StringAutomaton.h"
 #include "CommentAutomaton.h"
 
-#include <iostream>
-
 Lexer::Lexer() {
     CreateAutomata();
 }
