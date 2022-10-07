@@ -12,17 +12,12 @@ private:
 
     void CreateAutomata();
 
-    // TODO: add any other private methods here (if needed)
-
 public:
     Lexer();
     ~Lexer();
 
     void Run(std::string& input);
-    std::string GetTokens();
-    
-    // TODO: add other public methods here
-
+    std::vector<Token*> GetTokens();
 };
 
 #endif // LEXER_H

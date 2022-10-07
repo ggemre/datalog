@@ -1,4 +1,3 @@
-#include <sstream>
 #include <string>
 #include <cctype>
 #include "Lexer.h"
@@ -24,18 +23,18 @@ Lexer::Lexer() {
 }
 
 Lexer::~Lexer() {
-    for (Automaton *automaton : automata) {
+    for (Automaton* automaton : automata) {
         delete automaton;
     }
 
-    for (Token *token : tokens) {
+    for (Token* token : tokens) {
         delete token;
     }
 }
 
 /**
  * pushes each automaton onto automata vector
- */
+ **/
 void Lexer::CreateAutomata() {
     automata.push_back(new CommaAutomaton());
     automata.push_back(new PeriodAutomaton());
@@ -61,7 +60,7 @@ void Lexer::CreateAutomata() {
  * this is the 1st block of the datalog pipeline
  * 
  * @param input file being read in as a string
- */
+ **/
 void Lexer::Run(std::string& input) {
     int lineNumber = 1;
 
@@ -90,7 +89,9 @@ void Lexer::Run(std::string& input) {
         if (maxRead > 0) {
             Token *newToken = maxAutomaton->CreateToken(input, lineNumber);
             lineNumber += maxAutomaton->NewLinesRead();
-            tokens.push_back(newToken);
+            if (newToken->GetType() != TokenType::COMMENT) {
+                tokens.push_back(newToken);
+            }
         }
         // otherwise add token of type UNDEFINED
         else {
@@ -114,19 +115,6 @@ void Lexer::Run(std::string& input) {
     tokens.push_back(newToken);
 }
 
-/**
- * returns token vector as a string
- * 
- * @return string of tokens, seperated by new lines
- */
-std::string Lexer::GetTokens() {
-    std::stringstream os;
-    
-    unsigned int tokenNum = tokens.size();
-    for (unsigned int i = 0; i < tokenNum; i++) {
-        os << tokens[i]->ToString() << "\n";
-    }
-    os << "Total Tokens = " << tokenNum;
-
-    return os.str();
+std::vector<Token*> Lexer::GetTokens() {
+    return tokens;
 }

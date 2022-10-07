@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "Lexer.h"
+#include "Parser.h"
 
 int main(int argc, char** argv) {
     // check argument count and quit if insufficient
@@ -17,11 +18,14 @@ int main(int argc, char** argv) {
 
     Lexer* lexer = new Lexer();
 
-    // feed into lexer, print tokens
+    // commence pipeline
+    // <fileStr> -> lexer -> <tokens> -> parser -> <datalogProg>
     lexer->Run(fileAsString);
-    std::cout << lexer->GetTokens();
+    Parser* parser = new Parser(lexer->GetTokens());
+    std::cout << parser->ParseDatalogProgram()->ToString();
 
     delete lexer;
+    delete parser;
 
     return 0;
 }
