@@ -23,6 +23,7 @@ void Relation::SetValues(std::string inpName, std::vector<std::string> attribute
 
 Relation* Relation::SelectVal(int index, std::string val) {
     Relation* newRelation = new Relation(name, header.attributes);
+    newRelation->hasVars = hasVars;
 
     for (Tuple t : tuples) {
         if (t.At(index) == val) {
@@ -35,6 +36,7 @@ Relation* Relation::SelectVal(int index, std::string val) {
 
 Relation* Relation::SelectSame(int firstIndex, int secondIndex) {
     Relation* newRelation = new Relation(name, header.attributes);
+    newRelation->hasVars = hasVars;
 
     for (Tuple t : tuples) {
         if (t.At(firstIndex) == t.At(secondIndex)) {
@@ -47,28 +49,24 @@ Relation* Relation::SelectSame(int firstIndex, int secondIndex) {
 
 Relation* Relation::Project(std::vector<int> indices) {
     Relation* newRelation = new Relation(name, header.attributes);
+    newRelation->hasVars = hasVars;
 
     for (Tuple t : tuples) {
         std::vector<std::string> vals = t.GetValues();
         Tuple newTuple(vals);
-        int valNum = vals.size();
         
-        for (int i = 0; i < valNum; i++) {
+        for (int i = 0; i < (int)vals.size(); i++) {
             if (std::count(indices.begin(), indices.end(), i) == 0) {
                 newTuple.RemoveAt(i);
-                valNum--;
             }
         }
 
         newRelation->AddTuple(newTuple);
     }
 
-    int attributeNum = newRelation->header.attributes.size();
-
-    for (int i = 0; i < attributeNum; i++) {
+    for (int i = 0; i < (int)newRelation->header.attributes.size(); i++) {
         if (std::count(indices.begin(), indices.end(), i) == 0) {
             newRelation->header.attributes.erase(newRelation->header.attributes.begin() + i);
-            attributeNum--;
         }
     }
     
@@ -77,6 +75,7 @@ Relation* Relation::Project(std::vector<int> indices) {
 
 Relation* Relation::Rename(std::vector<std::string> attributes) {
     Relation* newRelation = new Relation(name, header.attributes);
+    newRelation->hasVars = hasVars;
 
     for (Tuple t : tuples) {
         newRelation->AddTuple(t);
@@ -96,13 +95,21 @@ void Relation::AddTuple(Tuple tuple) {
 
 std::string Relation::ToString() {
     std::stringstream os;
-    os << name;
 
-    for (Tuple t : tuples) {
-        os << std::endl << "  ";
-        for (int i = 0; i < t.Size(); i++) {
-            os << header.attributes.at(i) << "=" << t.At(i);
-            if (i < t.Size() - 1) os << ", ";
+    if (tuples.size() > 0) {
+        os << " Yes(" << tuples.size() << ")";
+    }
+    else {
+        os << " No";
+    }
+
+    if (hasVars) {
+        for (Tuple t : tuples) {
+            os << std::endl << "  ";
+            for (int i = 0; i < t.Size(); i++) {
+                os << header.attributes.at(i) << "=" << t.At(i);
+                if (i < t.Size() - 1) os << ", ";
+            }
         }
     }
 

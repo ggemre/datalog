@@ -13,6 +13,8 @@ class Relation {
         Header header;
         std::set<Tuple> tuples;
     public:
+        bool hasVars = false;
+        
         Relation(std::string inpName, std::vector<std::string> attributes);
         Relation(Relation* inpRelation);
         void SetValues(std::string inpName, std::vector<std::string> attributes);

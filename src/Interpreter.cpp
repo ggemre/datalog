@@ -47,6 +47,7 @@ Relation* Interpreter::EvaluatePredicate(Predicate* p) {
             else {
                 indicesOfVars.insert(std::pair<std::string, int>(param->ToString(), i));
                 parsedVars.push_back(param->ToString());
+                intRelation->hasVars = true;
             }
         }
     }
@@ -59,8 +60,6 @@ Relation* Interpreter::EvaluatePredicate(Predicate* p) {
     intRelation = intRelation->Project(indices);
     
     // rename by tracked vals
-    for (std::string var : parsedVars) std::cout << var << " ";
-    std::cout << std::endl;
     intRelation = intRelation->Rename(parsedVars);
 
     return intRelation;
@@ -98,7 +97,7 @@ void Interpreter::Interpret(DatalogProgram* datalog) {
 
     for (Predicate* q : queries) {
         Relation* resultRelation = EvaluatePredicate(q);
-
+        std::cout << q->ToString() << "?";
         std::cout << resultRelation->ToString() << std::endl;
     }
 }
