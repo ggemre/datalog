@@ -11,6 +11,10 @@ public:
         p = inpP;
     }
 
+    bool IsConstant() {
+        return p[0] == '\'';
+    }
+
     std::string ToString() {
         return p;
     }

@@ -17,6 +17,10 @@ public:
         parameters = inpParams;
     }
 
+    std::string GetId() {
+        return id;
+    }
+
     std::vector<Parameter*> GetParameters() {
         return parameters;
     }

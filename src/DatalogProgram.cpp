@@ -32,6 +32,18 @@ void DatalogProgram::AddRule(Rule* rule) {
     rules.push_back(rule);
 }
 
+std::vector<Predicate*> DatalogProgram::GetSchemes() {
+    return schemes;
+}
+
+std::vector<Predicate*> DatalogProgram::GetFacts() {
+    return facts;
+}
+
+std::vector<Predicate*> DatalogProgram::GetQueries() {
+    return queries;
+}
+
 /**
  * returns the parsed datalog program as a string
  * 

@@ -2,6 +2,7 @@
 #include <fstream>
 #include "Lexer.h"
 #include "Parser.h"
+#include "Interpreter.h"
 
 int main(int argc, char** argv) {
     // check argument count and quit if insufficient
@@ -22,10 +23,12 @@ int main(int argc, char** argv) {
     // <fileStr> -> lexer -> <tokens> -> parser -> <datalogProg>
     lexer->Run(fileAsString);
     Parser* parser = new Parser(lexer->GetTokens());
-    std::cout << parser->ParseDatalogProgram()->ToString();
+    Interpreter* interpreter = new Interpreter();
+    interpreter->Interpret(parser->ParseDatalogProgram());
 
     delete lexer;
     delete parser;
+    delete interpreter;
 
     return 0;
 }

@@ -13,10 +13,18 @@ class Relation {
         Header header;
         std::set<Tuple> tuples;
     public:
-        Relation SelectVal(int index, std::string val);
-        Relation SelectSame(int firstIndex, int secondIndex);
-        Relation Project(std::vector<int> indices);
-        Relation Rename(std::vector<std::string> attributes);
+        Relation(std::string inpName, std::vector<std::string> attributes);
+        Relation(Relation* inpRelation);
+        void SetValues(std::string inpName, std::vector<std::string> attributes);
+        void Copy(std::string inpName, Header inpHeader);
+
+        Relation* SelectVal(int index, std::string val);
+        Relation* SelectSame(int firstIndex, int secondIndex);
+        Relation* Project(std::vector<int> indices);
+        Relation* Rename(std::vector<std::string> attributes);
+
+        void AddTuple(Tuple tuple);
+        std::string ToString();
 };
 
 #endif // RELATION_H

@@ -5,9 +5,8 @@
 #include <string>
 
 class Header {
-    private:
-        std::vector<std::string> attributes;
     public:
+        std::vector<std::string> attributes;
 };
 
 #endif // HEADER_H

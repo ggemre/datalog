@@ -28,6 +28,10 @@ public:
     void AddQuery(Predicate* query);
     void AddRule(Rule* rule);
 
+    std::vector<Predicate*> GetSchemes();
+    std::vector<Predicate*> GetFacts();
+    std::vector<Predicate*> GetQueries();
+
     void SetErrorMessage(std::string message);
 
     std::string ToString();

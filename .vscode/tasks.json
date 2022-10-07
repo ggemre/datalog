@@ -12,7 +12,7 @@
                 "-std=c++17",
                 "${fileDirname}/*.cpp",
                 "-o",
-                "${fileDirname}/../debug/lab1"
+                "${fileDirname}/../debug/lab3"
             ],
             "options": {
                 "cwd": "${fileDirname}"
