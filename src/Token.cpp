@@ -19,6 +19,14 @@ std::string Token::ToString() {
     return os.str();
 }
 
+TokenType Token::GetType() {
+    return type;
+}
+
+std::string Token::GetDescription() {
+    return description;
+}
+
 /**
  * used for converting TokenType to a string
  * 
