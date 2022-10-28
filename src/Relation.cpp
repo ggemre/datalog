@@ -52,23 +52,22 @@ Relation* Relation::Project(std::vector<int> indices) {
     newRelation->hasVars = hasVars;
 
     for (Tuple t : tuples) {
-        std::vector<std::string> vals = t.GetValues();
-        Tuple newTuple(vals);
+        std::vector<std::string> oldVals = t.GetValues();
+        std::vector<std::string> newVals;
         
-        for (int i = 0; i < (int)vals.size(); i++) {
-            if (std::count(indices.begin(), indices.end(), i) == 0) {
-                newTuple.RemoveAt(i);
-            }
+        for (int i = 0; i < (int)indices.size(); i++) {
+            newVals.push_back(oldVals.at(indices.at(i)));
         }
 
+        Tuple newTuple(newVals);
         newRelation->AddTuple(newTuple);
     }
 
-    for (int i = 0; i < (int)newRelation->header.attributes.size(); i++) {
-        if (std::count(indices.begin(), indices.end(), i) == 0) {
-            newRelation->header.attributes.erase(newRelation->header.attributes.begin() + i);
-        }
+    std::vector<std::string> newAttributes;
+    for (int i = 0; i < (int)indices.size(); i++) {
+        newAttributes.push_back(this->header.attributes.at(indices.at(i)));
     }
+    newRelation->header.attributes = newAttributes;
     
     return newRelation;
 }

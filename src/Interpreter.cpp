@@ -54,8 +54,9 @@ Relation* Interpreter::EvaluatePredicate(Predicate* p) {
 
     // project by tracked vals
     std::vector<int> indices;
-    for (std::pair<std::string, int> parsedVar : indicesOfVars) {
-        indices.push_back(parsedVar.second);
+    for (std::string var: parsedVars) {
+        int nextIndex = indicesOfVars.at(var);
+        indices.push_back(nextIndex);
     }
     intRelation = intRelation->Project(indices);
     
