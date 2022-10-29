@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 
+#include <sstream>
+
 class Tuple {
     private:
         std::vector<std::string> values;
@@ -34,6 +36,21 @@ class Tuple {
 
         bool operator< (const Tuple &rhs) const {
             return values < rhs.values;
+        }
+
+        std::string ToString(std::vector<std::string> attributes) {
+            std::stringstream os;
+
+            int valNum = values.size();
+            for (int i = 0; i < valNum; i++) {
+                os << attributes.at(i) << "=";
+                os << values.at(i);
+
+                if (i < valNum - 1) {
+                    os << ", ";
+                }
+            }
+            return os.str();
         }
 };
 

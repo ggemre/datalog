@@ -5,11 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Run input file 3",
+            "name": "Run input file 2",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}/../debug/lab3",
-            "args": ["../tests/Lab3PassOffCases/3-80/input3.txt"],
+            "program": "${fileDirname}/../debug/lab4",
+            "args": ["../tests/Lab4PassOffCases/4-80/input2.txt"],
             "cwd": "."
         }
     ]
