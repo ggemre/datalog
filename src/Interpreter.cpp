@@ -142,22 +142,37 @@ bool Interpreter::EvaluateRule(Rule* r) {
 
     for (int i = 0; i < relNum - 1; i++) {
         joinedRelation = JoinRelations(name, resultRelations.at(i), resultRelations.at(i + 1));
+        resultRelations.at(i + 1) = joinedRelation;
     }
 
     // 3. Project the columns that appear in the head predicate
     std::vector<std::string> joinedAttributes = joinedRelation->GetAttributes();
     std::vector<std::string> headAttributes;
     std::vector<int> projectedCols;
-    for (Parameter* param : head->GetParameters()) headAttributes.push_back(param->ToString());
-    int attrNum = joinedAttributes.size();
 
-    for (int i = 0; i < attrNum; i++) {
-        if (std::find(headAttributes.begin(), headAttributes.end(), joinedAttributes.at(i)) != headAttributes.end()) {
-            projectedCols.push_back(i);
+    for (Parameter* param : head->GetParameters()) headAttributes.push_back(param->ToString());
+    int headAttrNum = headAttributes.size();
+    int joinedAttrNum = joinedAttributes.size();
+
+    for (int i = 0; i < headAttrNum; i++) {
+        for (int j = 0; j < joinedAttrNum; j++) {
+            if (headAttributes.at(i) == joinedAttributes.at(j)) {
+                projectedCols.push_back(j);
+                break;
+            }
         }
     }
 
     joinedRelation = joinedRelation->Project(projectedCols);
+
+    // std::cout << std::endl << "projected cols: ";
+    // for (int col : projectedCols) std::cout << col << " ";
+    // std::cout << std::endl << "head attr: ";
+    // for (std::string valX : headAttributes) std::cout << valX << " ";
+    // std::cout << std::endl << "joined attr: ";
+    // for (std::string valX : joinedAttributes) std::cout << valX << " ";
+    // std::cout << std::endl;
+    // return false;
 
     // 4. Rename the relation to make it union-compatible
     Relation* matchingScheme = db->entries[name];
@@ -165,7 +180,6 @@ bool Interpreter::EvaluateRule(Rule* r) {
     joinedRelation = joinedRelation->Rename(schemeAttributes);
 
     // 5. Union with the relation in the database
-
     std::cout << r->ToString() << "." << std::endl;
     for (Tuple t : joinedRelation->GetTuples()) {
         int beforeInsert = db->entries[name]->GetTuples().size();
