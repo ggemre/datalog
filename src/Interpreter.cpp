@@ -160,10 +160,13 @@ bool Interpreter::EvaluateRule(Rule* r) {
     joinedRelation = joinedRelation->Project(projectedCols);
 
     // 4. Rename the relation to make it union-compatible
+    Relation* matchingScheme = db->entries[name];
+    std::vector<std::string> schemeAttributes = matchingScheme->GetAttributes();
+    joinedRelation = joinedRelation->Rename(schemeAttributes);
 
     // 5. Union with the relation in the database
 
-    std::cout << r->ToString() << std::endl;
+    std::cout << r->ToString() << "." << std::endl;
     for (Tuple t : joinedRelation->GetTuples()) {
         int beforeInsert = db->entries[name]->GetTuples().size();
         db->entries[name]->AddTuple(t);
@@ -208,14 +211,27 @@ void Interpreter::Interpret(DatalogProgram* datalog) {
     }
 
     // 3. evaluate rules
+    //      see EvaluateRule()
+    std::cout << "Rule Evaluation" << std::endl;
     int ruleNum = rules.size();
-    for (int i = 0; i < ruleNum; i++) {
-        bool changed = EvaluateRule(rules.at(i));
-        if (changed) i = 0;
+    int passes = 0;
+    bool looping = true;
+
+    while (looping) {
+        looping = false;
+        for (int i = 0; i < ruleNum; i++) {
+            bool changed = EvaluateRule(rules.at(i));
+            if (changed) looping = true;
+        }
+        passes++;
     }
+
+    std::cout << std::endl << "Schemes populated after " << passes << " passes through the Rules." << std::endl << std::endl;
 
     // 4. for each query 'q'
     //      see EvaluatePredicate()
+    std::cout << "Query Evaluation" << std::endl;
+
     for (Predicate* q : queries) {
         Relation* resultRelation = EvaluatePredicate(q);
         std::cout << q->ToString() << "?";
