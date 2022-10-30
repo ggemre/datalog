@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${fileDirname}/../debug/lab4",
-            "args": ["../tests/Lab4PassOffCases/4-80/input3.txt"],
+            "args": ["../tests/Lab4PassOffCases/4-100/input3.txt"],
             "cwd": "."
         }
     ]

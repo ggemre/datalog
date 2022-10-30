@@ -31,6 +31,7 @@ class Relation {
         Relation* Rename(std::vector<std::string> attributes);
 
         void AddTuple(Tuple tuple);
+        bool AddTupleForRule(Tuple tuple);
         std::string ToString();
         std::string ToStringAsRule();
 };

@@ -104,6 +104,10 @@ void Relation::AddTuple(Tuple tuple) {
     tuples.insert(tuple);
 }
 
+bool Relation::AddTupleForRule(Tuple tuple) {
+    return tuples.insert(tuple).second;
+}
+
 std::string Relation::ToString() {
     std::stringstream os;
 

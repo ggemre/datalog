@@ -182,11 +182,9 @@ bool Interpreter::EvaluateRule(Rule* r) {
     // 5. Union with the relation in the database
     std::cout << r->ToString() << "." << std::endl;
     for (Tuple t : joinedRelation->GetTuples()) {
-        int beforeInsert = db->entries[name]->GetTuples().size();
-        db->entries[name]->AddTuple(t);
-        int afterInsert = db->entries[name]->GetTuples().size();
+        bool dbChanged = db->entries[name]->AddTupleForRule(t);
 
-        if (afterInsert != beforeInsert) {
+        if (dbChanged) {
             updated = true;
             std::cout << "  " << t.ToString(joinedRelation->GetAttributes()) << std::endl;
         }
