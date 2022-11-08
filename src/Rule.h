@@ -17,6 +17,14 @@ public:
         body = inpBody;
     }
 
+    std::vector<Predicate*> GetBody() {
+        return body;
+    }
+
+    Predicate* GetHead() {
+        return head;
+    }
+
     std::string ToString() {
         std::stringstream os;
 

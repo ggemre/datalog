@@ -6,12 +6,15 @@
 
 #include <iostream>
 
+Interpreter::Interpreter() {
+    db = new Database();
+}
+
 Interpreter::~Interpreter() {
     delete db;
 }
 
 /**
- * 3. for each query 'q'
  * get the relation ‘r’ with the same name as the query ‘q’
  * select for each constant in the query ‘q’
  * select for each pair of matching variables in ‘q’
@@ -54,8 +57,9 @@ Relation* Interpreter::EvaluatePredicate(Predicate* p) {
 
     // project by tracked vals
     std::vector<int> indices;
-    for (std::pair<std::string, int> parsedVar : indicesOfVars) {
-        indices.push_back(parsedVar.second);
+    for (std::string var: parsedVars) {
+        int nextIndex = indicesOfVars.at(var);
+        indices.push_back(nextIndex);
     }
     intRelation = intRelation->Project(indices);
     
@@ -65,12 +69,137 @@ Relation* Interpreter::EvaluatePredicate(Predicate* p) {
     return intRelation;
 }
 
+Relation* Interpreter::JoinRelations(std::string name, Relation* relA, Relation* relB) {
+    std::vector<std::string> attributesA = relA->GetAttributes();
+    std::vector<std::string> attributesB = relB->GetAttributes();
+    std::map<int, int> matchingCols;
+
+    // find all matching columns
+    for (int i = 0; i < (int)attributesA.size(); i++) {
+        for (int j = 0; j < (int)attributesB.size(); j++) {
+            if (attributesA.at(i) == attributesB.at(j)) {
+                matchingCols.insert(std::pair<int, int>(i, j));
+            }
+        }
+    }
+
+    // combine headers (into attributesA)
+    for (std::string attributeB : attributesB) {
+        attributesA.push_back(attributeB);
+    }
+
+    // combine tuples
+    std::set<Tuple> joinedTuples;
+
+    for (Tuple tA : relA->GetTuples()) {
+        for (Tuple tB : relB->GetTuples()) {
+            bool canJoin = true;
+
+            for (std::pair<int, int> matches : matchingCols) {
+                if (tA.At(matches.first) != tB.At(matches.second)) canJoin = false;
+                break;
+            }
+
+            if (canJoin) {
+                std::vector<std::string> nextTuple;
+
+                for (std::string val : tA.GetValues()) {
+                    nextTuple.push_back(val);
+                }
+
+                for (std::string val : tB.GetValues()) {
+                    nextTuple.push_back(val);
+                }
+
+                joinedTuples.insert(Tuple(nextTuple));
+            }
+        }
+    }
+
+    Relation* newRelation = new Relation(name, attributesA);
+    for (Tuple t : joinedTuples) {
+        newRelation->AddTuple(t);
+    }
+
+    return newRelation;
+}
+
+bool Interpreter::EvaluateRule(Rule* r) {
+    // 1. Evaluate the predicates on the right-hand side of the rule
+    Predicate* head = r->GetHead();
+    std::string name = head->GetId();
+    std::vector<Predicate*> body = r->GetBody();
+    std::vector<Relation*> resultRelations;
+    bool updated = false;
+
+    for (Predicate* p : body) {
+        resultRelations.push_back(EvaluatePredicate(p));
+    }
+
+    // 2. Join the relations that result
+    int relNum = resultRelations.size();
+    Relation* joinedRelation = resultRelations.at(0);
+
+    for (int i = 0; i < relNum - 1; i++) {
+        joinedRelation = JoinRelations(name, resultRelations.at(i), resultRelations.at(i + 1));
+        resultRelations.at(i + 1) = joinedRelation;
+    }
+
+    // 3. Project the columns that appear in the head predicate
+    std::vector<std::string> joinedAttributes = joinedRelation->GetAttributes();
+    std::vector<std::string> headAttributes;
+    std::vector<int> projectedCols;
+
+    for (Parameter* param : head->GetParameters()) headAttributes.push_back(param->ToString());
+    int headAttrNum = headAttributes.size();
+    int joinedAttrNum = joinedAttributes.size();
+
+    for (int i = 0; i < headAttrNum; i++) {
+        for (int j = 0; j < joinedAttrNum; j++) {
+            if (headAttributes.at(i) == joinedAttributes.at(j)) {
+                projectedCols.push_back(j);
+                break;
+            }
+        }
+    }
+
+    joinedRelation = joinedRelation->Project(projectedCols);
+
+    // std::cout << std::endl << "projected cols: ";
+    // for (int col : projectedCols) std::cout << col << " ";
+    // std::cout << std::endl << "head attr: ";
+    // for (std::string valX : headAttributes) std::cout << valX << " ";
+    // std::cout << std::endl << "joined attr: ";
+    // for (std::string valX : joinedAttributes) std::cout << valX << " ";
+    // std::cout << std::endl;
+    // return false;
+
+    // 4. Rename the relation to make it union-compatible
+    Relation* matchingScheme = db->entries[name];
+    std::vector<std::string> schemeAttributes = matchingScheme->GetAttributes();
+    joinedRelation = joinedRelation->Rename(schemeAttributes);
+
+    // 5. Union with the relation in the database
+    std::cout << r->ToString() << "." << std::endl;
+    for (Tuple t : joinedRelation->GetTuples()) {
+        int beforeInsert = db->entries[name]->GetTuples().size();
+        db->entries[name]->AddTuple(t);
+        int afterInsert = db->entries[name]->GetTuples().size();
+
+        if (afterInsert != beforeInsert) {
+            updated = true;
+            std::cout << "  " << t.ToString(joinedRelation->GetAttributes()) << std::endl;
+        }
+    }
+
+    return updated;
+}
+
 void Interpreter::Interpret(DatalogProgram* datalog) {
     std::vector<Predicate*> schemes = datalog->GetSchemes();
     std::vector<Predicate*> facts = datalog->GetFacts();
+    std::vector<Rule*> rules = datalog->GetRules();
     std::vector<Predicate*> queries = datalog->GetQueries();
-
-    db = new Database();
 
     // 1. for each scheme 's'
     //      create a relation using name and parameter from 's'
@@ -94,6 +223,28 @@ void Interpreter::Interpret(DatalogProgram* datalog) {
         Tuple t(values);
         db->entries[name]->AddTuple(t);
     }
+
+    // 3. evaluate rules
+    //      see EvaluateRule()
+    std::cout << "Rule Evaluation" << std::endl;
+    int ruleNum = rules.size();
+    int passes = 0;
+    bool looping = true;
+
+    while (looping) {
+        looping = false;
+        for (int i = 0; i < ruleNum; i++) {
+            bool changed = EvaluateRule(rules.at(i));
+            if (changed) looping = true;
+        }
+        passes++;
+    }
+
+    std::cout << std::endl << "Schemes populated after " << passes << " passes through the Rules." << std::endl << std::endl;
+
+    // 4. for each query 'q'
+    //      see EvaluatePredicate()
+    std::cout << "Query Evaluation" << std::endl;
 
     for (Predicate* q : queries) {
         Relation* resultRelation = EvaluatePredicate(q);

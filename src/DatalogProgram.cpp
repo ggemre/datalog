@@ -40,6 +40,10 @@ std::vector<Predicate*> DatalogProgram::GetFacts() {
     return facts;
 }
 
+std::vector<Rule*> DatalogProgram::GetRules() {
+    return rules;
+}
+
 std::vector<Predicate*> DatalogProgram::GetQueries() {
     return queries;
 }

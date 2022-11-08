@@ -16,6 +16,18 @@ Relation::Relation(Relation* inpRelation) {
     }
 }
 
+std::string Relation::GetName() {
+    return name;
+}
+
+std::vector<std::string> Relation::GetAttributes() {
+    return header.attributes;
+}
+
+std::set<Tuple> Relation::GetTuples() {
+    return tuples;
+}
+
 void Relation::SetValues(std::string inpName, std::vector<std::string> attributes) {
     name = inpName;
     header.attributes = attributes;
@@ -52,23 +64,22 @@ Relation* Relation::Project(std::vector<int> indices) {
     newRelation->hasVars = hasVars;
 
     for (Tuple t : tuples) {
-        std::vector<std::string> vals = t.GetValues();
-        Tuple newTuple(vals);
+        std::vector<std::string> oldVals = t.GetValues();
+        std::vector<std::string> newVals;
         
-        for (int i = 0; i < (int)vals.size(); i++) {
-            if (std::count(indices.begin(), indices.end(), i) == 0) {
-                newTuple.RemoveAt(i);
-            }
+        for (int i = 0; i < (int)indices.size(); i++) {
+            newVals.push_back(oldVals.at(indices.at(i)));
         }
 
+        Tuple newTuple(newVals);
         newRelation->AddTuple(newTuple);
     }
 
-    for (int i = 0; i < (int)newRelation->header.attributes.size(); i++) {
-        if (std::count(indices.begin(), indices.end(), i) == 0) {
-            newRelation->header.attributes.erase(newRelation->header.attributes.begin() + i);
-        }
+    std::vector<std::string> newAttributes;
+    for (int i = 0; i < (int)indices.size(); i++) {
+        newAttributes.push_back(this->header.attributes.at(indices.at(i)));
     }
+    newRelation->header.attributes = newAttributes;
     
     return newRelation;
 }
@@ -110,6 +121,20 @@ std::string Relation::ToString() {
                 os << header.attributes.at(i) << "=" << t.At(i);
                 if (i < t.Size() - 1) os << ", ";
             }
+        }
+    }
+
+    return os.str();
+}
+
+std::string Relation::ToStringAsRule() {
+    std::stringstream os;
+
+    for (Tuple t : tuples) {
+        os << std::endl << "  ";
+        for (int i = 0; i < t.Size(); i++) {
+            os << header.attributes.at(i) << "=" << t.At(i);
+            if (i < t.Size() - 1) os << ", ";
         }
     }
 

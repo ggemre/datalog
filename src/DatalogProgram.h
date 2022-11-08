@@ -30,6 +30,7 @@ public:
 
     std::vector<Predicate*> GetSchemes();
     std::vector<Predicate*> GetFacts();
+    std::vector<Rule*> GetRules();
     std::vector<Predicate*> GetQueries();
 
     void SetErrorMessage(std::string message);

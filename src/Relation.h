@@ -17,6 +17,11 @@ class Relation {
         
         Relation(std::string inpName, std::vector<std::string> attributes);
         Relation(Relation* inpRelation);
+
+        std::string GetName();
+        std::vector<std::string> GetAttributes();
+        std::set<Tuple> GetTuples();
+        
         void SetValues(std::string inpName, std::vector<std::string> attributes);
         void Copy(std::string inpName, Header inpHeader);
 
@@ -27,6 +32,7 @@ class Relation {
 
         void AddTuple(Tuple tuple);
         std::string ToString();
+        std::string ToStringAsRule();
 };
 
 #endif // RELATION_H
