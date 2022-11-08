@@ -96,8 +96,10 @@ Relation* Interpreter::JoinRelations(std::string name, Relation* relA, Relation*
             bool canJoin = true;
 
             for (std::pair<int, int> matches : matchingCols) {
-                if (tA.At(matches.first) != tB.At(matches.second)) canJoin = false;
-                break;
+                if (tA.At(matches.first) != tB.At(matches.second)) {
+                  canJoin = false;
+                  break;
+                }
             }
 
             if (canJoin) {
@@ -164,15 +166,6 @@ bool Interpreter::EvaluateRule(Rule* r) {
     }
 
     joinedRelation = joinedRelation->Project(projectedCols);
-
-    // std::cout << std::endl << "projected cols: ";
-    // for (int col : projectedCols) std::cout << col << " ";
-    // std::cout << std::endl << "head attr: ";
-    // for (std::string valX : headAttributes) std::cout << valX << " ";
-    // std::cout << std::endl << "joined attr: ";
-    // for (std::string valX : joinedAttributes) std::cout << valX << " ";
-    // std::cout << std::endl;
-    // return false;
 
     // 4. Rename the relation to make it union-compatible
     Relation* matchingScheme = db->entries[name];
