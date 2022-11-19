@@ -8,10 +8,12 @@
 
 Interpreter::Interpreter() {
     db = new Database();
+    graph = new Graph();
 }
 
 Interpreter::~Interpreter() {
     delete db;
+    delete graph;
 }
 
 /**
@@ -214,6 +216,9 @@ void Interpreter::Interpret(DatalogProgram* datalog) {
         Tuple t(values);
         db->entries[name]->AddTuple(t);
     }
+
+    graph->BuildDependencyGraph(rules);
+    std::cout << graph->GetDependencyGraph() << std::endl;
 
     // 3. evaluate rules
     //      see EvaluateRule()
