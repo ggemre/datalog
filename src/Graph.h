@@ -16,6 +16,7 @@ class Graph
 {
 private:
     std::map<int, std::set<int>> dependencyGraph;
+    std::map<int, std::set<int>> reverseDependencyGraph;
 public:
     void BuildDependencyGraph(std::vector<Rule*> rules) {
         std::map<Rule*, int> rulesIndices;
@@ -40,16 +41,52 @@ public:
 
             dependencyGraph.insert(std::pair<int, std::set<int>>(index++, dependencies));
         }
+    }
 
+    void BuildReverseDependencyGraph() {
+        for (std::pair<int, std::set<int>> depPair : dependencyGraph) {
+            std::set<int> reverseDeps;
+            reverseDependencyGraph.insert(std::pair<int, std::set<int>>(depPair.first, reverseDeps));
+        }
+
+        int index = 0;
+        for (std::pair<int, std::set<int>> depPair : dependencyGraph) {
+            std::set<int> reverseDeps;
+            for (int dep : depPair.second) {
+                reverseDependencyGraph.at(dep).insert(index);
+            }
+
+            index++;
+        }
     }
 
     std::string GetDependencyGraph() {
         std::stringstream os;
 
         for (std::pair<int, std::set<int>> dep : dependencyGraph) {
-            os << dep.first << " : ";
+            os << "R" << dep.first << ":";
             for (int i : dep.second) {
-                os << i << ", ";
+                os << "R" << i;
+                auto it = dep.second.end();
+                it--;
+                if (i != *it) os << ",";
+            }
+            os << std::endl;
+        }
+
+        return os.str();
+    }
+
+    std::string GetReverseDependencyGraph() {
+        std::stringstream os;
+
+        for (std::pair<int, std::set<int>> dep : reverseDependencyGraph) {
+            os << "R" << dep.first << ":";
+            for (int i : dep.second) {
+                os << "R" << i;
+                auto it = dep.second.end();
+                it--;
+                if (i != *it) os << ",";
             }
             os << std::endl;
         }

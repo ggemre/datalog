@@ -219,6 +219,8 @@ void Interpreter::Interpret(DatalogProgram* datalog) {
 
     graph->BuildDependencyGraph(rules);
     std::cout << graph->GetDependencyGraph() << std::endl;
+    graph->BuildReverseDependencyGraph();
+    std::cout << graph->GetReverseDependencyGraph() << std::endl;
 
     // 3. evaluate rules
     //      see EvaluateRule()
