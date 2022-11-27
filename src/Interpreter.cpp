@@ -5,6 +5,7 @@
 #include "Tuple.h"
 
 #include <iostream>
+#include <unordered_set>
 
 Interpreter::Interpreter() {
     db = new Database();
@@ -218,9 +219,72 @@ void Interpreter::Interpret(DatalogProgram* datalog) {
     }
 
     graph->BuildDependencyGraph(rules);
-    std::cout << graph->GetDependencyGraph() << std::endl;
+    std::cout << "Original tree:" << std::endl << graph->PrintDependencyGraph() << std::endl;
     graph->BuildReverseDependencyGraph();
-    std::cout << graph->GetReverseDependencyGraph() << std::endl;
+    std::cout << "Reverse tree:" << std::endl << graph->PrintReverseDependencyGraph() << std::endl;
+
+    std::set<int> availableNodesReverse;
+    for (std::pair<int, std::set<int>> graphPair : graph->GetReverseDependencyGraph()) {
+        availableNodesReverse.insert(graphPair.first);
+    }
+
+    bool moreNodesToTraverse = true;
+    while (moreNodesToTraverse) {
+        int currentNode = *availableNodesReverse.begin();
+        graph->TraverseReverse(currentNode);
+        std::map<int, int> postOrder = graph->GetReversePostOrder();
+        for (std::pair<int, int> orderedPair : postOrder) {
+            availableNodesReverse.erase(orderedPair.second);
+        }
+
+        if (availableNodesReverse.size() == 0) moreNodesToTraverse = false;
+    }
+
+    std::cout << "Reverse PostOrder:" << std::endl << graph->PrintReversePostOrder() << std::endl;
+
+    graph->ResetClock();
+    moreNodesToTraverse = true;
+
+    std::vector<int> availableNodesOriginal;
+    for (std::pair<int, int> orderedPair : graph->GetReversePostOrder()) {
+        availableNodesOriginal.push_back(orderedPair.second);
+    }
+
+    std::vector<std::set<int>> spanningTree;
+
+    while(moreNodesToTraverse) {
+        int currentNode = availableNodesOriginal.back();
+        
+        graph->TraverseOriginal(currentNode);
+        std::map<int, int> postOrder = graph->GetPostOrder();
+        std::set<int> currentTree;
+
+        for (std::pair<int, int> orderedPair : postOrder) {
+            bool isUnique = true;
+            for (std::set<int> tree : spanningTree) {
+                if (tree.find(orderedPair.second) != tree.end())
+                    isUnique = false;
+            }
+
+            if (isUnique)
+                currentTree.insert(orderedPair.second);
+            
+            //availableNodesOriginal.erase(orderedPair.second);
+            availableNodesOriginal.erase(std::remove(availableNodesOriginal.begin(), availableNodesOriginal.end(), orderedPair.second), availableNodesOriginal.end());
+        }
+
+        spanningTree.push_back(currentTree);
+        if (availableNodesOriginal.size() == 0) moreNodesToTraverse = false;
+    }
+
+    std::cout << "Spanning trees:" << std::endl;
+    for (std::set<int> tree : spanningTree) {
+        for (int i : tree) {
+            std::cout << i << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
 
     // 3. evaluate rules
     //      see EvaluateRule()

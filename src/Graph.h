@@ -7,6 +7,7 @@
 #include <vector>
 #include <sstream>
 #include <string>
+#include <algorithm>
 #include "Rule.h"
 #include "Predicate.h"
 
@@ -17,6 +18,11 @@ class Graph
 private:
     std::map<int, std::set<int>> dependencyGraph;
     std::map<int, std::set<int>> reverseDependencyGraph;
+    std::map<int, int> reversePostOrder;
+    std::map<int, int> postOrder;
+
+    std::vector<int> visitedNodes;
+    int currentIndex = 0;
 public:
     void BuildDependencyGraph(std::vector<Rule*> rules) {
         std::map<Rule*, int> rulesIndices;
@@ -33,7 +39,7 @@ public:
 
             for (Predicate* p : preds) {
                 for (std::pair<Rule*, int> matchRule : rulesIndices) {
-                    if (p->GetId() == matchRule.first->GetHead()->GetId()) {
+                    if (p->GetId() == matchRule.first->GetHead()->GetId() && index != matchRule.second) {
                         dependencies.insert(matchRule.second);
                     }
                 }
@@ -60,7 +66,43 @@ public:
         }
     }
 
-    std::string GetDependencyGraph() {
+    void TraverseReverse(int vertex) {
+        visitedNodes.push_back(vertex);
+        for (int dep : reverseDependencyGraph.at(vertex)) {
+            if (std::find(visitedNodes.begin(), visitedNodes.end(), dep) == visitedNodes.end()) {
+                TraverseReverse(dep);
+            }
+        }
+        reversePostOrder.insert(std::pair<int, int>(currentIndex++, vertex));
+
+        return;
+    }
+
+    std::map<int, int> GetReversePostOrder() {
+        return reversePostOrder;
+    }
+
+    std::map<int, int> GetPostOrder() {
+        return postOrder;
+    }
+
+    void ResetClock() {
+        currentIndex = 0;
+        visitedNodes.clear();
+    }
+
+    void TraverseOriginal(int vertex) {
+        visitedNodes.push_back(vertex);
+        for (int dep : dependencyGraph.at(vertex)) {
+            if (std::find(visitedNodes.begin(), visitedNodes.end(), dep) == visitedNodes.end()) {
+                TraverseOriginal(dep);
+            }
+        }
+        postOrder.insert(std::pair<int, int>(currentIndex++, vertex));
+        return;
+    }
+
+    std::string PrintDependencyGraph() {
         std::stringstream os;
 
         for (std::pair<int, std::set<int>> dep : dependencyGraph) {
@@ -77,7 +119,7 @@ public:
         return os.str();
     }
 
-    std::string GetReverseDependencyGraph() {
+    std::string PrintReverseDependencyGraph() {
         std::stringstream os;
 
         for (std::pair<int, std::set<int>> dep : reverseDependencyGraph) {
@@ -92,6 +134,20 @@ public:
         }
 
         return os.str();
+    }
+
+    std::string PrintReversePostOrder() {
+        std::stringstream os;
+
+        for (std::pair<int, int> ord : reversePostOrder) {
+            os << ord.first << ": " << ord.second << std::endl;
+        }
+
+        return os.str();
+    }
+
+    std::map<int, std::set<int>> GetReverseDependencyGraph() {
+        return reverseDependencyGraph;
     }
 };
 
