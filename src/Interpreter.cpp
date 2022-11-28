@@ -129,7 +129,7 @@ Relation* Interpreter::JoinRelations(std::string name, Relation* relA, Relation*
     return newRelation;
 }
 
-bool Interpreter::EvaluateRule(Rule* r) {
+bool Interpreter::EvaluateRule(Rule* r, bool singleRule) {
     // 1. Evaluate the predicates on the right-hand side of the rule
     Predicate* head = r->GetHead();
     std::string name = head->GetId();
@@ -176,11 +176,12 @@ bool Interpreter::EvaluateRule(Rule* r) {
     joinedRelation = joinedRelation->Rename(schemeAttributes);
 
     // 5. Union with the relation in the database
-    std::cout << r->ToString() << "." << std::endl;
+    if (!singleRule) std::cout << r->ToString() << "." << std::endl;
     for (Tuple t : joinedRelation->GetTuples()) {
         bool dbChanged = db->entries[name]->AddTupleForRule(t);
 
         if (dbChanged) {
+            if (!updated && singleRule) std::cout << r->ToString() << "." << std::endl;
             updated = true;
             std::cout << "  " << t.ToString(joinedRelation->GetAttributes()) << std::endl;
         }
@@ -219,9 +220,9 @@ void Interpreter::Interpret(DatalogProgram* datalog) {
     }
 
     graph->BuildDependencyGraph(rules);
-    std::cout << "Original tree:" << std::endl << graph->PrintDependencyGraph() << std::endl;
+    std::cout << "Dependency Graph" << std::endl << graph->PrintDependencyGraph() << std::endl;
     graph->BuildReverseDependencyGraph();
-    std::cout << "Reverse tree:" << std::endl << graph->PrintReverseDependencyGraph() << std::endl;
+    //std::cout << "Reverse tree:" << std::endl << graph->PrintReverseDependencyGraph() << std::endl;
 
     std::set<int> availableNodesReverse;
     for (std::pair<int, std::set<int>> graphPair : graph->GetReverseDependencyGraph()) {
@@ -240,7 +241,7 @@ void Interpreter::Interpret(DatalogProgram* datalog) {
         if (availableNodesReverse.size() == 0) moreNodesToTraverse = false;
     }
 
-    std::cout << "Reverse PostOrder:" << std::endl << graph->PrintReversePostOrder() << std::endl;
+    //std::cout << "Reverse PostOrder:" << std::endl << graph->PrintReversePostOrder() << std::endl;
 
     graph->ResetClock();
     moreNodesToTraverse = true;
@@ -277,33 +278,68 @@ void Interpreter::Interpret(DatalogProgram* datalog) {
         if (availableNodesOriginal.size() == 0) moreNodesToTraverse = false;
     }
 
-    std::cout << "Spanning trees:" << std::endl;
-    for (std::set<int> tree : spanningTree) {
-        for (int i : tree) {
-            std::cout << i << " ";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
+    // std::cout << "Spanning trees:" << std::endl;
+    // for (std::set<int> tree : spanningTree) {
+    //     for (int i : tree) {
+    //         std::cout << i << " ";
+    //     }
+    //     std::cout << std::endl;
+    // }
+    // std::cout << std::endl;
+
+    // 3. evaluate rules
+    //      see EvaluateRule()
+    // std::cout << "Rule Evaluation" << std::endl;
+    // int ruleNum = rules.size();
+    // int passes = 0;
+    // bool looping = true;
+
+    // while (looping) {
+    //     looping = false;
+    //     for (int i = 0; i < ruleNum; i++) {
+    //         bool changed = EvaluateRule(rules.at(i));
+    //         if (changed) looping = true;
+    //     }
+    //     passes++;
+    // }
 
     // 3. evaluate rules
     //      see EvaluateRule()
     std::cout << "Rule Evaluation" << std::endl;
-    int ruleNum = rules.size();
-    int passes = 0;
-    bool looping = true;
-
-    while (looping) {
-        looping = false;
-        for (int i = 0; i < ruleNum; i++) {
-            bool changed = EvaluateRule(rules.at(i));
-            if (changed) looping = true;
+    int depth = 0;
+    for (std::set<int> tree : spanningTree) {
+        //int ruleNum = tree.size();
+        int passes = 0;
+        int looping = true;
+        std::cout << "SCC: ";
+        for (int node : tree) {
+            std::cout << "R" << node;
+            if (node != *tree.rbegin()) std::cout << ",";
         }
-        passes++;
+        std::cout << std::endl;
+
+        while (looping) {
+            looping = false;
+            for (int i : tree) {
+                bool changed = EvaluateRule(rules.at(i), tree.size() == 1 && depth < 4 && rules.at(i)->GetBody().size() < 6);
+                if (changed) looping = true;
+            }
+            passes++;
+        }
+
+        if (tree.size() == 1 && depth < 4) passes--;
+
+        std::cout << passes << " passes: ";
+        for (int node : tree) {
+            std::cout << "R" << node;
+            if (node != *tree.rbegin()) std::cout << ",";
+        }
+        std::cout << std::endl;
+        depth++;
     }
+    std::cout << std::endl;
 
-    std::cout << std::endl << "Schemes populated after " << passes << " passes through the Rules." << std::endl << std::endl;
-
+    
     // 4. for each query 'q'
     //      see EvaluatePredicate()
     std::cout << "Query Evaluation" << std::endl;

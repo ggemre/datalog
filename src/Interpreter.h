@@ -13,7 +13,7 @@ class Interpreter {
         Graph* graph;
         Relation* EvaluatePredicate(Predicate* p);
         Relation* JoinRelations(std::string name, Relation* relA, Relation* relB);
-        bool EvaluateRule(Rule* r);
+        bool EvaluateRule(Rule* r, bool singleRule);
     public:
         Interpreter();
         ~Interpreter();
