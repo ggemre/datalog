@@ -1,0 +1,12 @@
+(COMMA,",",3)
+(PERIOD,".",4)
+(Q_MARK,"?",5)
+(LEFT_PAREN,"(",6)
+(RIGHT_PAREN,")",7)
+(COLON,":",8)
+(COLON,":",8)
+(COLON,":",8)
+(MULTIPLY,"*",9)
+(ADD,"+",10)
+(EOF,"",11)
+Total Tokens = 13
