@@ -8,3 +8,24 @@ An interpreter for the Datalog language.
 > \- [Wikipedia - Datalog](https://en.wikipedia.org/wiki/Datalog)
 
 ## Usage
+To compile the program you can use `g++` like so:
+
+```sh
+$ g++ -Wall -Werror -std=c++17 -g src/*.cpp -o datalog
+```
+
+Then, simply run the compiled executable with a datalog file passed in as a cli argument:
+
+```sh
+$ ./datalog hello.d
+```
+
+You can optionally use the scripts as provided:
+
+```sh
+$ scripts/run.sh hello.d
+  Hello, world
+$ scripts/test.sh
+  Running unit tests
+  ...
+```
